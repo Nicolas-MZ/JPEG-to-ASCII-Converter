@@ -1,36 +1,64 @@
 from PIL import Image
 import numpy as np
 
-## Function that converts a pixel value into a corresponding ASCII character
+class ImageConsi:
+    def __init__(self, name, size):
+        self.name = name
+        self.size = size
+        self.image = Image.open(name)
+    def resize(self):
+        self.image.thumbnail(self.size)
+    def convert_grayscale(self):
+        return self.image.convert('L')
+    def auto_convert(self):
+        self.resize()
+        image = self.convert_grayscale()
+        return image
+    
+
+class ConvertMatriz:
+    def __init__(self, image):
+        self.image = image
+    def convert_array(self):
+        matriz = np.asarray(self.image)
+        return matriz
+    
+
 def ascii_chars(pixel, ascii_char):
     num_char = len(ascii_char)
-    char = 256 // num_char  # Defines the brightness range for each character
+    char = 256 // num_char
     ascii_character = ascii_char[min(pixel // char, num_char - 1)]
     return ascii_character
 
 
-ascii_char = '@#8&M0oahwbdqCXnvxjft()1[]-+<>;^{}|!?*%$'  # Set of characters for conversion
+ascii_char = '@#8&M0oahwbdqCXnvxjft()1[]-+<>;^{}|!?*%$'
 
+print('-' * 30)
+print("   JPEG-TO-ASCII-CONVERTER")
+print('-'* 30)
 
-## Open an image, convert it to grayscale ('L' mode), and resize it
-im_cl = Image.open("Robot.jpeg")  # Open the image
-size = (120, 160)  # Define the thumbnail size
-im_cl.thumbnail(size)  # Resize while maintaining the aspect ratio
+name_image = str(input("Digite o nome do arquivo (sem a extensão .jpeg): "))
+name_image = f'{name_image}.jpeg'
 
-im_bw = im_cl.convert('L')  # Convert to grayscale
-im_bw.save("Robot_bw.jpeg")  # Save the converted image
+size = (120,160)
+image = ImageConsi(name_image, size)
+image_bw = image.auto_convert()
 
+if image_bw:
+    convert_matriz = ConvertMatriz(image_bw)
+    data_im = convert_matriz.convert_array()
+    
+    if data_im is not None: 
+        ascii_art = ''
+        for row in data_im:
+            for pixel in row:
+                ascii_art += ascii_chars(pixel, ascii_char)
+            ascii_art += '\n'
 
-## Convert the image into a NumPy array
-data_im = np.asarray(im_bw)
+        with open('ascii_art.txt', 'w') as ascii:
+            ascii.write(ascii_art)
+        print("Conversão bem-sucedida!!")
 
+else:
+    print("Houve algum problema na execução, por favor tente novamente.")
 
-## Iterate through each pixel and generate ASCII art
-ascii_art = ''
-for row in data_im:
-    for pixel in row:
-        ascii_art += ascii_chars(pixel, ascii_char)  # Convert each pixel to an ASCII character
-    ascii_art += '\n'  # Add a new line at the end of each row
-
-with open('ascii_art.txt', 'w') as f:
-    f.write(ascii_art)
